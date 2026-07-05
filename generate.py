@@ -130,7 +130,7 @@ def main():
 
     if result.returncode == 0:
         print("\nDone. Check your GitHub profile.")
-        print("As someone once said — we're at least better than politicians.")
+        print("Use it wisely. Or don't — you're already more accountable than most politicians.")
     else:
         print("\nPush failed. Error:")
         print(result.stderr)
