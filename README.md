@@ -2,7 +2,7 @@
 
 > "This tool won't fix your reputation. But it will fix your graph."
 
-A CLI tool to generate GitHub commit activity for any date range. Built in Python. No BS, no GUI — just clone, configure, and run.
+A CLI tool to generate GitHub commit activity for any date range. Supports multiple patterns, multiple repos, dry run mode, config file, and folder picker. No BS, no GUI — just clone, configure, and run.
 
 ---
 
@@ -16,10 +16,12 @@ The author is not responsible for how this is used.
 ## 🚀 What it does
 
 - Generates commits across a custom date range
-- Customizable commits per day (1–10)
-- Random or custom commit messages
-- Pushes directly to your GitHub repo
-- Makes your contribution graph look like you never sleep
+- 4 commit patterns — uniform, random, weekday, burst
+- Folder picker popup — no need to type repo paths manually
+- Dry run mode — preview before committing anything
+- Multiple repos support — run across several repos at once
+- Reset mode — wipe all generated commits and start fresh
+- Config file support — save settings and reuse anytime
 
 ---
 
@@ -28,7 +30,6 @@ The author is not responsible for how this is used.
 - Python 3.x
 - Git installed and configured
 - A GitHub account
-- A private dummy repo (instructions below)
 
 ---
 
@@ -46,16 +47,30 @@ pip3 install gitpython
 ```
 
 **Step 3 — Create a private dummy repo on GitHub:**
-1. Go to github.com → New repository
-2. Name it anything (e.g. `my-activity`)
-3. Set to **Private**
-4. Check "Add a README file"
+
+This is the repo where commits will be generated. Keep it private.
+
+1. Go to [github.com](https://github.com) and click **New repository**
+2. Give it any name (e.g. `my-activity`)
+3. Set visibility to **Private**
+4. Check **"Add a README file"**
 5. Click **Create repository**
 
 **Step 4 — Clone your dummy repo locally:**
+
+**Mac:**
 ```bash
+cd ~/Documents
 git clone https://github.com/YOUR_USERNAME/my-activity.git
 ```
+
+**Windows:**
+```bash
+cd C:\Users\YourName\Documents
+git clone https://github.com/YOUR_USERNAME/my-activity.git
+```
+
+Replace `YOUR_USERNAME` with your actual GitHub username.
 
 **Step 5 — Run the generator:**
 ```bash
@@ -64,83 +79,157 @@ python3 generate.py
 
 ---
 
-## 💻 Usage
+## 💻 How it works — Step by Step
 
-When you run the script, it will ask you a few questions. Here's exactly what to enter:
+**1. A folder picker popup will open automatically**
 
-```
-=============================================
-   GitHub Activity Generator
-   github.com/vedantchouhan
-=============================================
+Select the dummy repo folder you cloned in Step 4.
+If you select a wrong folder (not a git repo), an error popup will appear — just select the correct folder.
 
-Enter path to your local repo:
+After selecting, it will ask:
 ```
-→ Enter the full path to your cloned dummy repo.
-Example: `/Users/john/Documents/my-activity`
-*(On Mac: drag the folder into terminal to get the path automatically)*
+Add another repo? (yes/no):
+```
+Type `yes` to add more repos, or `no` to continue.
 
+**2. Enter date range**
 ```
-Start date (YYYY-MM-DD):
+Start date (YYYY-MM-DD): 2026-01-01
+End date (YYYY-MM-DD): 2026-06-30
 ```
-→ The date you want commits to start from.
-Example: `2026-01-01` *(1st January 2026)*
+This fills your contribution graph from January to June 2026.
 
+**3. Enter base commits per day**
 ```
-End date (YYYY-MM-DD):
+Base commits per day (1-10): 3
 ```
-→ The date you want commits to end on.
-Example: `2026-06-30` *(fills 6 months of activity)*
+Keep it between 2–5 for a natural-looking graph.
 
+**4. Choose a pattern**
 ```
-Commits per day (1-10):
+1. uniform  — same commits every day
+2. random   — varies 0 to 2x per day (most natural)
+3. weekday  — more on weekdays, less on weekends
+4. burst    — heavy for 5 days, light for 2 days
 ```
-→ How many green squares per day. Keep it between 2–5 for a natural look.
-Example: `3`
+`random` or `weekday` look most organic.
 
+**5. Choose commit messages**
 ```
-Commit messages:
 1. Use default random messages
-2. Enter your own messages
-Choose (1/2):
+2. Enter your own
 ```
-→ Press `1` for automatic messages. Press `2` to type your own — enter one per line, press Enter twice when done.
+Default messages are developer-style (e.g. "fix typo", "refactor code"). Or enter your own.
 
+**6. Dry run**
 ```
-Looks good? Start generating? (yes/no):
+Dry run first? (yes/no): yes
 ```
-→ Type `yes` to start. It will generate all commits and push automatically.
+Type `yes` to preview — shows how many commits will be made without actually doing anything.
+Type `no` to generate and push directly.
 
 ---
 
 ## ✅ Full example run
 
 ```
-Enter path to your local repo: /Users/john/Documents/my-activity
+==================================================
+   GitHub Activity Generator
+   github.com/vedantchouhan
+==================================================
+
+A folder picker will open — select your dummy repo folder.
+  Repo selected: /Users/john/Documents/my-activity
+  Add another repo? (yes/no): no
+
 Start date (YYYY-MM-DD): 2026-01-01
 End date (YYYY-MM-DD): 2026-03-31
-Commits per day (1-10): 3
+Base commits per day (1-10): 3
+Choose (1-4): 2
 Choose (1/2): 1
+Dry run first? (yes/no): no
 
-Preview:
-  Date range : 2026-01-01 to 2026-03-31
-  Total days : 90
-  Commits/day: 3
-  Total commits: 270
+  Repo    : /Users/john/Documents/my-activity
+  Range   : 2026-01-01 to 2026-03-31
+  Pattern : random
+  Days    : 90
+  Est. total commits: ~270
 
-Looks good? Start generating? (yes/no): yes
-
-Generating commits...
-  [1/90] 2026-01-01 — 3 commit(s) done
-  [2/90] 2026-01-02 — 3 commit(s) done
+  Generating commits...
+  [1/90] 2026-01-01 — 3 commit(s)
+  [2/90] 2026-01-02 — 5 commit(s)
   ...
-  [90/90] 2026-03-31 — 3 commit(s) done
+  [90/90] 2026-03-31 — 2 commit(s)
 
-Pushing to GitHub...
+  Pushing /Users/john/Documents/my-activity...
+  Pushed successfully.
 
-Done. Check your GitHub profile.
+All done. Check your GitHub profile.
 This tool won't fix your reputation. But it will fix your graph.
 ```
+
+---
+
+## ⚙️ Config file mode
+
+Instead of answering questions every time, save your settings in `config.json`:
+
+```json
+{
+    "repos": [
+        "/Users/yourname/Documents/my-activity"
+    ],
+    "start_date": "2026-01-01",
+    "end_date": "2026-06-30",
+    "commits_per_day": 3,
+    "pattern": "random",
+    "dry_run": false,
+    "messages": [
+        "update files",
+        "fix minor issues",
+        "refactor code"
+    ]
+}
+```
+
+Then run:
+```bash
+python3 generate.py --config config.json
+```
+
+No questions asked — runs automatically with your saved settings.
+
+---
+
+## 🔄 Reset mode
+
+Want to wipe all generated commits and start fresh?
+
+```bash
+python3 generate.py --reset
+```
+
+A folder picker opens — select the repo you want to reset. All commits will be deleted and the repo will go back to its first commit.
+
+---
+
+## 👁️ Dry run mode
+
+Preview without making any commits:
+
+```bash
+python3 generate.py --dry-run
+```
+
+---
+
+## 📌 Tips
+
+- Keep commits per day between 2–5 for a natural-looking graph
+- Use `random` or `weekday` pattern — looks most organic
+- Spread across several months, not just a few days
+- Always use a **private** repo — keep it separate from real work
+- Running the same date range twice will double your commits — use reset first if you want to redo
 
 ---
 
@@ -149,19 +238,11 @@ This tool won't fix your reputation. But it will fix your graph.
 ```
 github-activity-generator/
 ├── generate.py       # main script
+├── config.json       # config file template
 ├── requirements.txt  # dependencies
 ├── LICENSE           # MIT
 └── README.md
 ```
-
----
-
-## 📌 Tips
-
-- Keep commits per day between 2–5 for a natural-looking graph
-- Spread across several months for a more organic pattern
-- Use your own commit messages for a more authentic feel
-- Always use a **private** repo — keep it separate from real work
 
 ---
 

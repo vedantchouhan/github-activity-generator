@@ -1,0 +1,18 @@
+{
+    "repos": [
+        "/Users/yourname/Documents/my-activity",
+        "/Users/yourname/Documents/my-activity-2"
+    ],
+    "start_date": "2026-01-01",
+    "end_date": "2026-06-30",
+    "commits_per_day": 3,
+    "pattern": "random",
+    "dry_run": false,
+    "messages": [
+        "update files",
+        "fix minor issues",
+        "refactor code",
+        "clean up",
+        "improve structure"
+    ]
+}
