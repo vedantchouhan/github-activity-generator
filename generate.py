@@ -8,7 +8,6 @@ from datetime import datetime, timedelta
 import tkinter as tk
 from tkinter import filedialog, messagebox
 
-# ── Default commit messages ──────────────────────────────────────────────
 DEFAULT_MESSAGES = [
     "update files", "fix minor issues", "refactor code", "clean up",
     "improve structure", "update readme", "minor changes", "code cleanup",
@@ -16,8 +15,7 @@ DEFAULT_MESSAGES = [
     "update dependencies", "fix formatting", "improve readability",
 ]
 
-# ── Pattern generators ───────────────────────────────────────────────────
-def get_commits_for_day(date, pattern, base_count):
+def get_commits_for_day(date, pattern, base_count, start_date):
     if pattern == "uniform":
         return base_count
     elif pattern == "random":
@@ -33,9 +31,18 @@ def get_commits_for_day(date, pattern, base_count):
             return random.randint(base_count, min(base_count + 3, 10))
         else:
             return random.randint(0, 1)
+    elif pattern == "natural":
+        # 3-4 days active, 1-2 days break, repeat — most realistic pattern
+        cycle_day = (date - start_date).days
+        cycle_length = random.choice([5, 6])
+        cycle_pos = cycle_day % cycle_length
+        active_days = random.randint(3, 4)
+        if cycle_pos < active_days:
+            return random.randint(base_count, min(base_count + 2, 10))
+        else:
+            return random.randint(0, 1)
     return base_count
 
-# ── Folder picker ────────────────────────────────────────────────────────
 def pick_repo(title="Select your dummy repo folder"):
     while True:
         root = tk.Tk()
@@ -54,17 +61,15 @@ def pick_repo(title="Select your dummy repo folder"):
             root2.withdraw()
             messagebox.showerror(
                 "Invalid Repo",
-                f"The selected folder is not a Git repository:\n{path}\n\nMake sure you cloned your dummy repo first."
+                f"Not a Git repository:\n{path}\n\nMake sure you cloned your dummy repo first."
             )
             root2.destroy()
             print(f"  Error: Not a git repo — {path}")
-            print("  Please select a valid cloned repo folder.")
             continue
 
         print(f"  Repo selected: {path}")
         return path
 
-# ── Make a single commit ─────────────────────────────────────────────────
 def make_commit(date, message, repo_path):
     date_str = date.strftime("%Y-%m-%dT%H:%M:%S")
     env = os.environ.copy()
@@ -78,32 +83,24 @@ def make_commit(date, message, repo_path):
     subprocess.run(["git", "add", "."], cwd=repo_path, env=env, capture_output=True)
     subprocess.run(["git", "commit", "-m", message], cwd=repo_path, env=env, capture_output=True)
 
-# ── Delete generated commits ─────────────────────────────────────────────
 def reset_repo():
     print("Select the repo you want to reset:")
     path = pick_repo("Select repo to reset")
-
     print(f"\nResetting repo: {path}")
-    confirm = input("This will delete ALL commits in this repo. Are you sure? (yes/no): ").strip().lower()
+    confirm = input("This will delete ALL commits. Are you sure? (yes/no): ").strip().lower()
     if confirm != "yes":
         print("Reset cancelled.")
         return
-
-    result = subprocess.run(
-        ["git", "rev-list", "--max-parents=0", "HEAD"],
-        cwd=path, capture_output=True, text=True
-    )
+    result = subprocess.run(["git", "rev-list", "--max-parents=0", "HEAD"],
+                            cwd=path, capture_output=True, text=True)
     first_commit = result.stdout.strip()
-
     if not first_commit:
         print("No commits found.")
         return
-
     subprocess.run(["git", "reset", "--hard", first_commit], cwd=path, capture_output=True)
     subprocess.run(["git", "push", "--force"], cwd=path, capture_output=True)
-    print("Reset complete. Repo is back to first commit.")
+    print("Reset complete.")
 
-# ── Generate for one repo ────────────────────────────────────────────────
 def generate_for_repo(repo_path, start_date, end_date, base_count, pattern, messages, dry_run):
     dates = []
     current = start_date
@@ -111,12 +108,12 @@ def generate_for_repo(repo_path, start_date, end_date, base_count, pattern, mess
         dates.append(current)
         current += timedelta(days=1)
 
-    total = sum(get_commits_for_day(d, pattern, base_count) for d in dates)
+    total = sum(get_commits_for_day(d, pattern, base_count, start_date) for d in dates)
     print(f"\n  Repo    : {repo_path}")
     print(f"  Range   : {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}")
     print(f"  Pattern : {pattern}")
     print(f"  Days    : {len(dates)}")
-    print(f"  Est. total commits: ~{total}")
+    print(f"  Est. commits: ~{total}")
 
     if dry_run:
         print("  [DRY RUN] No commits will be made.")
@@ -124,31 +121,29 @@ def generate_for_repo(repo_path, start_date, end_date, base_count, pattern, mess
 
     print("\n  Generating commits...")
     for i, date in enumerate(dates):
-        count = get_commits_for_day(date, pattern, base_count)
+        count = get_commits_for_day(date, pattern, base_count, start_date)
         for _ in range(count):
             message = random.choice(messages)
-            varied_date = date + timedelta(hours=random.randint(8, 22), minutes=random.randint(0, 59))
+            varied_date = date + timedelta(hours=random.randint(8, 22),
+                                           minutes=random.randint(0, 59))
             make_commit(varied_date, message, repo_path)
         if count > 0:
             print(f"  [{i+1}/{len(dates)}] {date.strftime('%Y-%m-%d')} — {count} commit(s)")
 
-    print(f"\n  Pushing {repo_path}...")
+    print(f"\n  Pushing...")
     result = subprocess.run(["git", "push"], cwd=repo_path, capture_output=True, text=True)
     if result.returncode == 0:
         print(f"  Pushed successfully.")
     else:
-        print(f"  Push failed. Run 'git push' manually in {repo_path}")
+        print(f"  Push failed. Run 'git push' manually.")
         print(f"  Error: {result.stderr}")
 
-# ── Load config ──────────────────────────────────────────────────────────
 def load_config(config_path):
     with open(config_path, "r") as f:
         return json.load(f)
 
-# ── Interactive mode ─────────────────────────────────────────────────────
 def interactive_mode():
     repos = []
-
     print("A folder picker will open — select your dummy repo folder.")
     while True:
         path = pick_repo("Select your dummy repo folder")
@@ -175,11 +170,13 @@ def interactive_mode():
 
     print("\nPattern:")
     print("  1. uniform  — same commits every day")
-    print("  2. random   — varies 0 to 2x per day (most natural)")
-    print("  3. weekday  — more on weekdays, less on weekends")
-    print("  4. burst    — heavy for 5 days, light for 2 days")
-    pattern_map = {"1": "uniform", "2": "random", "3": "weekday", "4": "burst"}
-    pattern = pattern_map.get(input("Choose (1-4): ").strip(), "random")
+    print("  2. random   — varies 0 to 2x per day")
+    print("  3. weekday  — more Mon-Fri, less weekends")
+    print("  4. burst    — heavy 5 days, light 2 days")
+    print("  5. natural  — 3-4 days on, 1-2 days break (most realistic)")
+    pattern_map = {"1": "uniform", "2": "random", "3": "weekday",
+                   "4": "burst", "5": "natural"}
+    pattern = pattern_map.get(input("Choose (1-5): ").strip(), "natural")
 
     print("\nCommit messages:")
     print("  1. Use default random messages")
@@ -200,10 +197,8 @@ def interactive_mode():
         messages = DEFAULT_MESSAGES
 
     dry_run = input("\nDry run first? (yes/no): ").strip().lower() == "yes"
-
     return repos, start_date, end_date, base_count, pattern, messages, dry_run
 
-# ── Main ─────────────────────────────────────────────────────────────────
 def main():
     parser = argparse.ArgumentParser(description="GitHub Activity Generator")
     parser.add_argument("--config", help="Path to config.json", default=None)
@@ -228,7 +223,7 @@ def main():
         start_date = datetime.strptime(config["start_date"], "%Y-%m-%d")
         end_date = datetime.strptime(config["end_date"], "%Y-%m-%d")
         base_count = config.get("commits_per_day", 3)
-        pattern = config.get("pattern", "random")
+        pattern = config.get("pattern", "natural")
         messages = config.get("messages", DEFAULT_MESSAGES)
         dry_run = config.get("dry_run", False) or args.dry_run
     else:
@@ -241,25 +236,26 @@ def main():
         if not os.path.exists(repo_path):
             print(f"\nRepo not found: {repo_path} — skipping")
             continue
-        generate_for_repo(repo_path, start_date, end_date, base_count, pattern, messages, dry_run)
+        generate_for_repo(repo_path, start_date, end_date,
+                          base_count, pattern, messages, dry_run)
 
-    if dry_run:
-        print("\nDry run complete — no commits were made.")
+    if not dry_run:
+        print("\nAll done. Check your GitHub profile.")
+        print("This tool won't fix your reputation. But it will fix your graph.")
+    else:
+        print("\nDry run complete.")
         proceed = input("Proceed with real commits now? (yes/no): ").strip().lower()
         if proceed == "yes":
             print("\n[GENERATING REAL COMMITS]\n")
             for repo_path in repos:
                 if not os.path.exists(repo_path):
-                    print(f"\nRepo not found: {repo_path} — skipping")
                     continue
-                generate_for_repo(repo_path, start_date, end_date, base_count, pattern, messages, dry_run=False)
+                generate_for_repo(repo_path, start_date, end_date,
+                                  base_count, pattern, messages, dry_run=False)
             print("\nAll done. Check your GitHub profile.")
             print("This tool won't fix your reputation. But it will fix your graph.")
         else:
             print("Exited without making commits.")
-    else:
-        print("\nAll done. Check your GitHub profile.")
-        print("This tool won't fix your reputation. But it will fix your graph.")
 
 if __name__ == "__main__":
     main()
