@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "github-activity-generator"
+version = "1.0.0"
+description = "Generate GitHub commit activity for any date range"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+  { name = "Vedant Chouhan", email = "chouhanvedant84@gmail.com" }
+]
+keywords = ["github", "git", "activity", "developer-tools", "cli", "automation"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Environment :: Console"
+]
+requires-python = ">=3.7"
+dependencies = [
+  "gitpython"
+]
+
+[project.scripts]
+github-activity-generator = "github_activity_generator.main:main"
+
+[project.urls]
+Homepage = "https://github.com/vedantchouhan/github-activity-generator"

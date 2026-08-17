@@ -1,259 +1,213 @@
+```markdown
 # ⚡ GitHub Activity Generator
 
-> "This tool won't fix your reputation. But it will fix your graph."
+[![PyPI version](https://badge.fury.io/py/github-activity-generator.svg)](https://pypi.org/project/github-activity-generator/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A CLI tool to generate GitHub commit activity for any date range. Supports multiple patterns, multiple repos, dry run mode, config file, and folder picker. No BS, no GUI — just clone, configure, and run.
+> *"This tool won't fix your reputation. But it will fix your graph."*
+
+A CLI tool to generate realistic GitHub commit activity for any date range. Features multiple commit patterns, multi-repo support, dry-run simulations, config file automation, interactive folder picking, and safe repo resets.
 
 ---
 
 ## ⚠️ Disclaimer
 
-This tool is intended for **personal use and learning purposes only.**
-The author is not responsible for how this is used.
+This tool is intended for **personal use, testing, and educational purposes only.** The author is not responsible for how this tool is utilized.
 
 ---
 
-## 🚀 What it does
+## ✨ Features
 
-- Generates commits across a custom date range
-- 4 commit patterns — uniform, random, weekday, burst
-- Folder picker popup — no need to type repo paths manually
-- Dry run mode — preview before committing anything
-- Multiple repos support — run across several repos at once
-- Reset mode — wipe all generated commits and start fresh
-- Config file support — save settings and reuse anytime
+* **Custom Date Ranges:** Backdate or plan commits across any specific start and end dates.
+* **Realistic Activity Patterns:**
+  * `uniform`: Steady commit count every day.
+  * `random`: Varies between 0 and 2x base commits per day.
+  * `weekday`: Heavier activity Monday–Friday, lighter on weekends.
+  * `burst`: 5 consecutive high-volume days followed by 2 light days.
+  * `natural`: Alternates 3–4 active days with 1–2 break days (most organic).
+* **Multi-Repo Automation:** Generate and push commits across multiple repositories in a single run.
+* **Interactive UI & Folder Picker:** Visual folder picker so you never have to manually type absolute paths.
+* **Dry-Run Mode:** Preview estimated commit counts and timelines before applying changes.
+* **Config File Support:** Save settings in a `config.json` file for automated, zero-prompt execution.
+* **Safe Reset:** Revert generated repos back to their initial commit with force-push support.
 
 ---
 
 ## 📋 Requirements
 
-- Python 3.x
-- Git installed and configured
-- A GitHub account
+* Python >= 3.7
+* Git installed and configured locally
+* A GitHub account
 
 ---
 
-## ⚙️ Setup — Step by Step
+## 🚀 Installation
 
-**Step 1 — Clone this repo:**
+### Option 1: Install via PyPI (Recommended)
+
 ```bash
-git clone https://github.com/vedantchouhan/github-activity-generator.git
+pip install github-activity-generator
+
+```
+
+### Option 2: Install from Source
+
+```bash
+git clone [https://github.com/vedantchouhan/github-activity-generator.git](https://github.com/vedantchouhan/github-activity-generator.git)
 cd github-activity-generator
+pip install -e .
+
 ```
 
-**Step 2 — Install dependency:**
-```bash
-pip3 install gitpython
-```
+---
 
-**Step 3 — Create a private dummy repo on GitHub:**
+## 🛠️ Step-by-Step Setup Guide
 
-This is the repo where commits will be generated. Keep it private.
+### 1. Create a Private Dummy Repository
 
-1. Go to [github.com](https://github.com) and click **New repository**
-2. Give it any name (e.g. `my-activity`)
-3. Set visibility to **Private**
-4. Check **"Add a README file"**
-5. Click **Create repository**
+1. Go to [github.com](https://github.com) and click **New repository**.
+2. Name it (e.g., `my-activity`).
+3. Set visibility to **Private** *(strongly recommended)*.
+4. Check **"Add a README file"**.
+5. Click **Create repository**.
 
-**Step 4 — Clone your dummy repo locally:**
+### 2. Clone the Dummy Repo Locally
 
-**Mac:**
+**macOS / Linux:**
+
 ```bash
 cd ~/Documents
-git clone https://github.com/YOUR_USERNAME/my-activity.git
+git clone [https://github.com/YOUR_USERNAME/my-activity.git](https://github.com/YOUR_USERNAME/my-activity.git)
+
 ```
 
 **Windows:**
+
 ```bash
 cd C:\Users\YourName\Documents
-git clone https://github.com/YOUR_USERNAME/my-activity.git
+git clone [https://github.com/YOUR_USERNAME/my-activity.git](https://github.com/YOUR_USERNAME/my-activity.git)
+
 ```
 
-Replace `YOUR_USERNAME` with your actual GitHub username.
+### 3. Run the Generator
 
-**Step 5 — Run the generator:**
+If installed via pip:
+
 ```bash
-python3 generate.py
+github-activity-generator
+
+```
+
+If running the Python script directly:
+
+```bash
+python3 -m github_activity_generator.main
+
 ```
 
 ---
 
-## 💻 How it works — Step by Step
+## 💻 Usage & Options
 
-**1. A folder picker popup will open automatically**
+### Interactive CLI Mode
 
-Select the dummy repo folder you cloned in Step 4.
-If you select a wrong folder (not a git repo), an error popup will appear — just select the correct folder.
+Running the command without arguments launches an interactive setup wizard with a folder picker GUI:
 
-After selecting, it will ask:
-```
-Add another repo? (yes/no):
-```
-Type `yes` to add more repos, or `no` to continue.
-
-**2. Enter date range**
-```
-Start date (YYYY-MM-DD): 2026-01-01
-End date (YYYY-MM-DD): 2026-06-30
-```
-This fills your contribution graph from January to June 2026.
-
-**3. Enter base commits per day**
-```
-Base commits per day (1-10): 3
-```
-Keep it between 2–5 for a natural-looking graph.
-
-**4. Choose a pattern**
-```
-1. uniform  — same commits every day
-2. random   — varies 0 to 2x per day (most natural)
-3. weekday  — more on weekdays, less on weekends
-4. burst    — heavy for 5 days, light for 2 days
-```
-`random` or `weekday` look most organic.
-
-**5. Choose commit messages**
-```
-1. Use default random messages
-2. Enter your own
-```
-Default messages are developer-style (e.g. "fix typo", "refactor code"). Or enter your own.
-
-**6. Dry run**
-```
-Dry run first? (yes/no): yes
-```
-Type `yes` to preview — shows how many commits will be made without actually doing anything.
-Type `no` to generate and push directly.
-
----
-
-## ✅ Full example run
+```bash
+github-activity-generator
 
 ```
-==================================================
-   GitHub Activity Generator
-   github.com/vedantchouhan
-==================================================
 
-A folder picker will open — select your dummy repo folder.
-  Repo selected: /Users/john/Documents/my-activity
-  Add another repo? (yes/no): no
+### Config File Mode
 
-Start date (YYYY-MM-DD): 2026-01-01
-End date (YYYY-MM-DD): 2026-03-31
-Base commits per day (1-10): 3
-Choose (1-4): 2
-Choose (1/2): 1
-Dry run first? (yes/no): no
+Skip prompts by passing a `config.json` file:
 
-  Repo    : /Users/john/Documents/my-activity
-  Range   : 2026-01-01 to 2026-03-31
-  Pattern : random
-  Days    : 90
-  Est. total commits: ~270
+```bash
+github-activity-generator --config config.json
 
-  Generating commits...
-  [1/90] 2026-01-01 — 3 commit(s)
-  [2/90] 2026-01-02 — 5 commit(s)
-  ...
-  [90/90] 2026-03-31 — 2 commit(s)
-
-  Pushing /Users/john/Documents/my-activity...
-  Pushed successfully.
-
-All done. Check your GitHub profile.
-This tool won't fix your reputation. But it will fix your graph.
 ```
 
----
-
-## ⚙️ Config file mode
-
-Instead of answering questions every time, save your settings in `config.json`:
+**Example `config.json`:**
 
 ```json
 {
-    "repos": [
-        "/Users/yourname/Documents/my-activity"
-    ],
-    "start_date": "2026-01-01",
-    "end_date": "2026-06-30",
-    "commits_per_day": 3,
-    "pattern": "random",
-    "dry_run": false,
-    "messages": [
-        "update files",
-        "fix minor issues",
-        "refactor code"
-    ]
+  "repos": [
+    "/Users/yourname/Documents/my-activity",
+    "/Users/yourname/Documents/my-activity-2"
+  ],
+  "start_date": "2026-01-01",
+  "end_date": "2026-06-30",
+  "commits_per_day": 3,
+  "pattern": "natural",
+  "dry_run": false,
+  "messages": [
+    "update files",
+    "fix minor issues",
+    "refactor code",
+    "clean up",
+    "improve structure"
+  ]
 }
+
 ```
 
-Then run:
-```bash
-python3 generate.py --config config.json
-```
+### Dry-Run Mode
 
-No questions asked — runs automatically with your saved settings.
-
----
-
-## 🔄 Reset mode
-
-Want to wipe all generated commits and start fresh?
+Preview commits without writing to git history or pushing:
 
 ```bash
-python3 generate.py --reset
+github-activity-generator --dry-run
+
 ```
 
-A folder picker opens — select the repo you want to reset. All commits will be deleted and the repo will go back to its first commit.
+### Reset Mode
 
----
-
-## 👁️ Dry run mode
-
-Preview without making any commits:
+Wipe all generated commits and roll back the repository to its initial commit:
 
 ```bash
-python3 generate.py --dry-run
+github-activity-generator --reset
+
 ```
 
 ---
 
-## 📌 Tips
+## 💡 Best Practices
 
-- Keep commits per day between 2–5 for a natural-looking graph
-- Use `random` or `weekday` pattern — looks most organic
-- Spread across several months, not just a few days
-- Always use a **private** repo — keep it separate from real work
-- Running the same date range twice will double your commits — use reset first if you want to redo
+* **Keep It Natural:** Set `commits_per_day` between 2–4 and use the `natural` or `weekday` pattern for an organic-looking commit graph.
+* **Date Spans:** Spread activity evenly across months rather than overloading a single week.
+* **Keep Repos Private:** Always run activity generation inside dedicated dummy private repositories.
 
 ---
 
-## 📁 Project Structure
+## 📁 Repository Structure
 
-```
+```text
 github-activity-generator/
-├── generate.py       # main script
-├── config.json       # config file template
-├── requirements.txt  # dependencies
-├── LICENSE           # MIT
+├── github_activity_generator/
+│   ├── __init__.py
+│   └── main.py
+├── config.json
+├── pyproject.toml
+├── LICENSE
 └── README.md
+
 ```
 
 ---
 
 ## 📄 License
 
-MIT License — see [LICENSE](LICENSE) for details.
+Distributed under the MIT License. See [LICENSE](https://www.google.com/search?q=LICENSE) for more information.
 
 ---
 
 ## 👤 Author
 
 **Vedant Chouhan**
-B.Tech CSE (AI/ML) — UPES Dehradun
-[github.com/vedantchouhan](https://github.com/vedantchouhan)
+
+* GitHub: [@vedantchouhan](https://github.com/vedantchouhan)
+* Email: chouhanvedant84@gmail.com
+
+```
+
+```
