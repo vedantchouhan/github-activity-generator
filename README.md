@@ -1,4 +1,4 @@
-```markdown
+markdown
 # ⚡ GitHub Activity Generator
 
 [![PyPI version](https://badge.fury.io/py/github-activity-generator.svg)](https://pypi.org/project/github-activity-generator/)
@@ -210,4 +210,3 @@ Distributed under the MIT License. See [LICENSE](https://www.google.com/search?q
 
 ```
 
-```
